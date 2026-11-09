@@ -1,0 +1,116 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-grow: grow 3s ease-in-out infinite both;
+  --animate-draw: draw 5s ease-in-out infinite both;
+  --animate-reveal: reveal 6s ease-in-out infinite both;
+  --animate-typing: typing 6s steps(34) infinite both;
+  --animate-blink: blink 1s step-end infinite;
+  --animate-marquee: marquee 30s linear infinite;
+  --animate-shimmer: shimmer 3s linear infinite;
+  --animate-hue: hue 8s linear infinite;
+  --animate-orbit: spin 40s linear infinite;
+  --animate-orbit-reverse: spin 40s linear infinite reverse;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+  @keyframes grow {
+    0%,
+    100% {
+      transform: scaleY(0.4);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+  /* Paths use pathLength="1" + stroke-dasharray="1", so 1 → 0 draws the full line */
+  @keyframes draw {
+    0% {
+      stroke-dashoffset: 1;
+    }
+    50%,
+    85% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 1;
+    }
+  }
+  @keyframes reveal {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    10%,
+    85% {
+      opacity: 1;
+      transform: none;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes typing {
+    0% {
+      max-width: 0;
+    }
+    55%,
+    90% {
+      max-width: 34ch;
+    }
+    100% {
+      max-width: 0;
+    }
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes hue {
+    to {
+      filter: hue-rotate(360deg);
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-zinc-950 font-sans text-zinc-100 antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
