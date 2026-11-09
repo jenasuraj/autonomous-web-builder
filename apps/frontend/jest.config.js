@@ -1,7 +1,8 @@
 /** @type {import('jest').Config} */
 export default {
   displayName: 'frontend',
-  testEnvironment: 'jsdom',
+  // jsdom plus Node's fetch globals (Request, Response…), which React Router's navigation needs
+  testEnvironment: 'jest-fixed-jsdom',
   testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   // React Router 8 is ESM-only, so run tests as native ESM
@@ -24,4 +25,4 @@ export default {
     '\\.css$': 'identity-obj-proxy',
     '\\.(svg|png|jpe?g|gif|webp|avif)$': '<rootDir>/test/file-mock.cjs',
   },
-}
+};
