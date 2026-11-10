@@ -2,36 +2,25 @@ import { useState, type ChangeEvent, type FormEvent } from 'react';
 import Button from '../../components/ui/Button';
 import FormMessage from '../../components/ui/FormMessage';
 import Input from '../../components/ui/Input';
-import { getErrorMessage } from '../../utils/helpers';
-import { register } from './auth.service';
-import type { RegisterPayload, RegisterResponse } from '../../types/auth';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { registerUser } from '../../store/auth/authThunks';
+import type { RegisterPayload } from '../../types/auth';
 
-export default function RegisterForm({
-  onRegistered,
-}: {
-  onRegistered: (pending: RegisterResponse) => void;
-}) {
+export default function RegisterForm() {
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((s) => s.auth);
   const [form, setForm] = useState<RegisterPayload>({
     name: '',
     email: '',
     password: '',
   });
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-    setSubmitting(true);
-    try {
-      onRegistered(await register(form));
-    } catch (err) {
-      setError(getErrorMessage(err));
-      setSubmitting(false);
-    }
+    void dispatch(registerUser(form));
   };
 
   return (
@@ -67,8 +56,8 @@ export default function RegisterForm({
         onChange={handleChange}
       />
       <FormMessage message={error} />
-      <Button type="submit" disabled={submitting} className="w-full">
-        {submitting ? 'Creating account…' : 'Create account'}
+      <Button type="submit" disabled={loading} className="w-full">
+        {loading ? 'Creating account…' : 'Create account'}
       </Button>
     </form>
   );

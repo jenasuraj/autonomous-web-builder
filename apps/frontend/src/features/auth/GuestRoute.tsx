@@ -1,10 +1,10 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
-import { useAuth } from './useAuth';
 import PageLoader from '../../components/ui/PageLoader';
+import { useAppSelector } from '../../store';
 
 /** Pages only for logged-out visitors; signed-in users go to where they were headed, or the dashboard. */
 export default function GuestRoute() {
-  const { status } = useAuth();
+  const status = useAppSelector((s) => s.auth.status);
   const { state } = useLocation();
   if (status === 'loading') return <PageLoader />;
   if (status === 'authenticated') {

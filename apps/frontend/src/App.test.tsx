@@ -1,27 +1,32 @@
 import { jest } from '@jest/globals';
-import type * as AuthService from './features/auth/auth.service';
 
-const validateSession = jest.fn<typeof AuthService.validateSession>();
-const login = jest.fn<typeof AuthService.login>();
+const validateSession = jest.fn<() => Promise<unknown>>();
+const login = jest.fn<(body: unknown) => Promise<unknown>>();
 
-jest.unstable_mockModule('./features/auth/auth.service', () => ({
-  validateSession,
-  login,
-  register: jest.fn(),
-  verifyOtp: jest.fn(),
-  resendOtp: jest.fn(),
-  logout: jest.fn(),
+jest.unstable_mockModule('./lib/api', () => ({
+  api: {
+    get: async () => ({ data: await validateSession() }),
+    post: async (url: string, body: unknown) => ({
+      data: url === '/auth/login' ? await login(body) : undefined,
+    }),
+  },
 }));
 
 const { fireEvent, render, screen } = await import('@testing-library/react');
+const { Provider } = await import('react-redux');
 const { default: App } = await import('./App');
+const { makeStore } = await import('./store');
 
 const user = { id: 'u1', name: 'Ada Lovelace', email: 'ada@example.com' };
 const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
 const renderAt = (path: string) => {
   window.history.pushState({}, '', path);
-  render(<App />);
+  render(
+    <Provider store={makeStore()}>
+      <App />
+    </Provider>,
+  );
 };
 
 describe('routing and auth', () => {

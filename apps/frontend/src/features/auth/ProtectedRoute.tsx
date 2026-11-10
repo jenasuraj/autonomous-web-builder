@@ -1,9 +1,9 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
-import { useAuth } from './useAuth';
 import PageLoader from '../../components/ui/PageLoader';
+import { useAppSelector } from '../../store';
 
 export default function ProtectedRoute() {
-  const { status } = useAuth();
+  const status = useAppSelector((s) => s.auth.status);
   const { pathname } = useLocation();
   if (status === 'loading') return <PageLoader />;
   if (status === 'unauthenticated')

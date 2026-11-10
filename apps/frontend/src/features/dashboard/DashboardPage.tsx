@@ -1,9 +1,9 @@
 import EmptyProjects from '../../components/dashboard/EmptyProjects';
 import { APP_NAME } from '../../utils/helpers';
-import { useAuth } from '../auth/useAuth';
+import { useAppSelector } from '../../store';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const user = useAppSelector((s) => s.auth.user);
   return (
     <section className="mx-auto max-w-5xl px-4 pt-28 pb-16">
       <title>{`Dashboard — ${APP_NAME}`}</title>

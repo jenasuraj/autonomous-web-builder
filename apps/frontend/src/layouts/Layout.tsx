@@ -1,14 +1,15 @@
 import { Outlet } from 'react-router';
 import AuthButtons from '../features/auth/AuthButtons';
-import AuthProvider from '../features/auth/AuthProvider';
+import { useSessionCheck } from '../features/auth/useSessionCheck';
 
 export default function Layout() {
+  useSessionCheck();
   return (
-    <AuthProvider>
+    <>
       <AuthButtons />
       <main className="min-h-screen overflow-x-clip">
         <Outlet />
       </main>
-    </AuthProvider>
+    </>
   );
 }

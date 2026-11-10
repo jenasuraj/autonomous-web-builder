@@ -3,23 +3,16 @@ import { useEffect, useState, type FormEvent } from 'react';
 import OtpInput from '../../components/auth/OtpInput';
 import Button from '../../components/ui/Button';
 import FormMessage from '../../components/ui/FormMessage';
-import { getErrorMessage } from '../../utils/helpers';
-import { resendOtp, verifyOtp } from './auth.service';
-import type { AuthSession, RegisterResponse } from '../../types/auth';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { cancelRegistration } from '../../store/auth/authSlice';
+import { resendOtp, verifyOtp } from '../../store/auth/authThunks';
 
 const RESEND_SECONDS = 60;
 
-interface OtpFormProps {
-  pending: RegisterResponse;
-  onVerified: (session: AuthSession) => void;
-  onBack: () => void;
-}
-
-export default function OtpForm({ pending, onVerified, onBack }: OtpFormProps) {
+export default function OtpForm() {
+  const dispatch = useAppDispatch();
+  const { pending, loading, error, notice } = useAppSelector((s) => s.auth);
   const [code, setCode] = useState('');
-  const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [cooldown, setCooldown] = useState(RESEND_SECONDS);
 
   useEffect(() => {
@@ -31,31 +24,16 @@ export default function OtpForm({ pending, onVerified, onBack }: OtpFormProps) {
     return () => clearTimeout(timeout);
   }, [cooldown]);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-    setNotice('');
-    setSubmitting(true);
-    try {
-      onVerified(
-        await verifyOtp({ registrationId: pending.registrationId, code }),
-      );
-    } catch (err) {
-      setError(getErrorMessage(err));
-      setSubmitting(false);
-    }
+    void dispatch(verifyOtp(code));
   };
 
   const handleResend = async () => {
-    setError('');
-    setNotice('');
-    try {
-      await resendOtp(pending.registrationId);
-      setNotice('A new code is on its way.');
+    const result = await dispatch(resendOtp());
+    if (resendOtp.fulfilled.match(result)) {
       setCode('');
       setCooldown(RESEND_SECONDS);
-    } catch (err) {
-      setError(getErrorMessage(err));
     }
   };
 
@@ -70,7 +48,7 @@ export default function OtpForm({ pending, onVerified, onBack }: OtpFormProps) {
         </h1>
         <p className="mt-2 text-sm text-zinc-400">
           We sent a 6-digit code to{' '}
-          <span className="font-medium text-zinc-200">{pending.email}</span>
+          <span className="font-medium text-zinc-200">{pending?.email}</span>
         </p>
       </div>
       <OtpInput value={code} onChange={setCode} />
@@ -78,15 +56,15 @@ export default function OtpForm({ pending, onVerified, onBack }: OtpFormProps) {
       <FormMessage message={notice} tone="success" />
       <Button
         type="submit"
-        disabled={submitting || code.length !== 6}
+        disabled={loading || code.length !== 6}
         className="w-full"
       >
-        {submitting ? 'Verifying…' : 'Verify email'}
+        {loading ? 'Verifying…' : 'Verify email'}
       </Button>
       <div className="flex items-center justify-between text-sm">
         <button
           type="button"
-          onClick={onBack}
+          onClick={() => dispatch(cancelRegistration())}
           className="text-zinc-400 transition hover:text-zinc-100"
         >
           Use a different email

@@ -1,13 +1,13 @@
-import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AuthCard from '../../components/auth/AuthCard';
 import ModeSwitch from '../../components/auth/ModeSwitch';
-import type { AuthMode, RegisterResponse } from '../../types/auth';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { cancelRegistration } from '../../store/auth/authSlice';
+import type { AuthMode } from '../../types/auth';
 import { APP_NAME } from '../../utils/helpers';
 import LoginForm from './LoginForm';
 import OtpForm from './OtpForm';
 import RegisterForm from './RegisterForm';
-import { useAuth } from './useAuth';
 
 const copy = {
   login: {
@@ -25,16 +25,16 @@ const copy = {
 };
 
 export default function AuthPage() {
-  const { signIn } = useAuth();
+
+  const dispatch = useAppDispatch();
+  const pending = useAppSelector((s) => s.auth.pending);
   const [params, setParams] = useSearchParams();
-  const [pending, setPending] = useState<RegisterResponse | null>(null);
-  const mode: AuthMode =
-    params.get('mode') === 'register' ? 'register' : 'login';
+  const mode: AuthMode = params.get('mode') === 'register' ? 'register' : 'login';
   const other: AuthMode = mode === 'login' ? 'register' : 'login';
   const verifying = mode === 'register' && pending;
 
   const switchMode = (next: AuthMode) => {
-    setPending(null);
+    dispatch(cancelRegistration());
     setParams(next === 'register' ? { mode: 'register' } : {});
   };
 
@@ -55,11 +55,7 @@ export default function AuthPage() {
     <AuthCard footer={footer}>
       <title>{`${mode === 'login' ? 'Log in' : 'Register'} — ${APP_NAME}`}</title>
       {verifying ? (
-        <OtpForm
-          pending={pending}
-          onVerified={signIn}
-          onBack={() => setPending(null)}
-        />
+        <OtpForm />
       ) : (
         <>
           <ModeSwitch mode={mode} onChange={switchMode} />
@@ -70,9 +66,9 @@ export default function AuthPage() {
             {copy[mode].subtitle}
           </p>
           {mode === 'login' ? (
-            <LoginForm onSuccess={signIn} />
+            <LoginForm />
           ) : (
-            <RegisterForm onRegistered={setPending} />
+            <RegisterForm />
           )}
         </>
       )}

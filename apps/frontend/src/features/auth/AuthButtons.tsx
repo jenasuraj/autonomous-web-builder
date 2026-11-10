@@ -1,12 +1,14 @@
 import { LogOut } from 'lucide-react';
 import { Link } from 'react-router';
-import { useAuth } from './useAuth';
-import { getInitials } from '../../utils/helpers';
 import Button from '../../components/ui/Button';
 import { buttonStyles } from '../../components/ui/buttonStyles';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { logoutUser } from '../../store/auth/authThunks';
+import { getInitials } from '../../utils/helpers';
 
 export default function AuthButtons() {
-  const { status, user, signOut } = useAuth();
+  const dispatch = useAppDispatch();
+  const { status, user } = useAppSelector((s) => s.auth);
   if (status === 'loading') return null;
   return (
     <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
@@ -21,7 +23,7 @@ export default function AuthButtons() {
           <Button
             variant="secondary"
             className="px-4! py-2! backdrop-blur"
-            onClick={() => void signOut()}
+            onClick={() => void dispatch(logoutUser())}
           >
             <LogOut className="size-4" /> Log out
           </Button>
