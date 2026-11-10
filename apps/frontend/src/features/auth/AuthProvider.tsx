@@ -7,10 +7,10 @@ import {
   type ReactNode,
 } from 'react';
 import { useLocation } from 'react-router';
-import type { User } from '../../../types';
-import { AuthContext } from '../context/AuthContext';
-import { logout, validateSession } from '../services/auth.service';
-import type { AuthSession } from '../types/auth.types';
+import type { User } from '../../types';
+import { AuthContext } from './AuthContext';
+import { logout, validateSession } from './auth.service';
+import type { AuthSession } from '../../types/auth';
 
 type AuthState =
   | { status: 'loading' | 'unauthenticated'; user: null; expiresAt: null }

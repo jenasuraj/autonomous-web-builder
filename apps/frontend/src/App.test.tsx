@@ -1,10 +1,10 @@
 import { jest } from '@jest/globals';
-import type * as AuthService from './features/auth/services/auth.service';
+import type * as AuthService from './features/auth/auth.service';
 
 const validateSession = jest.fn<typeof AuthService.validateSession>();
 const login = jest.fn<typeof AuthService.login>();
 
-jest.unstable_mockModule('./features/auth/services/auth.service', () => ({
+jest.unstable_mockModule('./features/auth/auth.service', () => ({
   validateSession,
   login,
   register: jest.fn(),

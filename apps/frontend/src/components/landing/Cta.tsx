@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import { buttonStyles } from '../../../components/ui/buttonStyles';
+import { buttonStyles } from '../ui/buttonStyles';
 
 export default function Cta() {
   return (

@@ -1,17 +1,21 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
-import Button from '../../../components/ui/Button';
-import FormMessage from '../../../components/ui/FormMessage';
-import Input from '../../../components/ui/Input';
-import { getErrorMessage } from '../../../utils/helpers';
-import { login } from '../services/auth.service';
-import type { AuthSession, LoginPayload } from '../types/auth.types';
+import Button from '../../components/ui/Button';
+import FormMessage from '../../components/ui/FormMessage';
+import Input from '../../components/ui/Input';
+import { getErrorMessage } from '../../utils/helpers';
+import { register } from './auth.service';
+import type { RegisterPayload, RegisterResponse } from '../../types/auth';
 
-export default function LoginForm({
-  onSuccess,
+export default function RegisterForm({
+  onRegistered,
 }: {
-  onSuccess: (session: AuthSession) => void;
+  onRegistered: (pending: RegisterResponse) => void;
 }) {
-  const [form, setForm] = useState<LoginPayload>({ email: '', password: '' });
+  const [form, setForm] = useState<RegisterPayload>({
+    name: '',
+    email: '',
+    password: '',
+  });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -23,7 +27,7 @@ export default function LoginForm({
     setError('');
     setSubmitting(true);
     try {
-      onSuccess(await login(form));
+      onRegistered(await register(form));
     } catch (err) {
       setError(getErrorMessage(err));
       setSubmitting(false);
@@ -32,6 +36,15 @@ export default function LoginForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <Input
+        label="Name"
+        name="name"
+        autoComplete="name"
+        required
+        maxLength={100}
+        value={form.name}
+        onChange={handleChange}
+      />
       <Input
         label="Email"
         name="email"
@@ -45,14 +58,17 @@ export default function LoginForm({
         label="Password"
         name="password"
         type="password"
-        autoComplete="current-password"
+        autoComplete="new-password"
+        placeholder="At least 8 characters"
         required
+        minLength={8}
+        maxLength={72}
         value={form.password}
         onChange={handleChange}
       />
       <FormMessage message={error} />
       <Button type="submit" disabled={submitting} className="w-full">
-        {submitting ? 'Logging in…' : 'Log in'}
+        {submitting ? 'Creating account…' : 'Create account'}
       </Button>
     </form>
   );

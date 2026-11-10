@@ -1,10 +1,11 @@
 import { MailCheck } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
-import Button from '../../../components/ui/Button';
-import FormMessage from '../../../components/ui/FormMessage';
-import { getErrorMessage } from '../../../utils/helpers';
-import { resendOtp, verifyOtp } from '../services/auth.service';
-import type { AuthSession, RegisterResponse } from '../types/auth.types';
+import OtpInput from '../../components/auth/OtpInput';
+import Button from '../../components/ui/Button';
+import FormMessage from '../../components/ui/FormMessage';
+import { getErrorMessage } from '../../utils/helpers';
+import { resendOtp, verifyOtp } from './auth.service';
+import type { AuthSession, RegisterResponse } from '../../types/auth';
 
 const RESEND_SECONDS = 60;
 
@@ -72,17 +73,7 @@ export default function OtpForm({ pending, onVerified, onBack }: OtpFormProps) {
           <span className="font-medium text-zinc-200">{pending.email}</span>
         </p>
       </div>
-      <input
-        aria-label="Verification code"
-        inputMode="numeric"
-        autoComplete="one-time-code"
-        autoFocus
-        maxLength={6}
-        placeholder="000000"
-        value={code}
-        onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-        className="w-full rounded-lg border border-white/10 bg-zinc-950/60 py-3 text-center font-mono text-2xl tracking-[0.5em] text-zinc-100 placeholder:text-zinc-700 focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 focus:outline-none"
-      />
+      <OtpInput value={code} onChange={setCode} />
       <FormMessage message={error} />
       <FormMessage message={notice} tone="success" />
       <Button

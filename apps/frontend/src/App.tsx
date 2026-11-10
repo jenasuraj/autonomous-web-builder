@@ -5,11 +5,11 @@ import {
   RouterProvider,
   type RouteObject,
 } from 'react-router';
-import GuestRoute from './components/shared/GuestRoute';
-import ProtectedRoute from './components/shared/ProtectedRoute';
-import AuthPage from './features/auth/pages/AuthPage';
-import DashboardPage from './features/dashboard/pages/DashboardPage';
-import LandingPage from './features/landing/pages/LandingPage';
+import GuestRoute from './features/auth/GuestRoute';
+import ProtectedRoute from './features/auth/ProtectedRoute';
+import AuthPage from './features/auth/AuthPage';
+import DashboardPage from './features/dashboard/DashboardPage';
+import LandingPage from './features/landing/LandingPage';
 import Layout from './layouts/Layout';
 
 const routes: RouteObject[] = [

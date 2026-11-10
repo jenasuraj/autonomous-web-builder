@@ -1,4 +1,4 @@
-import { api } from '../../../lib/api';
+import { api } from '../../lib/api';
 import type {
   AuthSession,
   LoginPayload,
@@ -6,7 +6,7 @@ import type {
   RegisterResponse,
   ValidateResponse,
   VerifyOtpPayload,
-} from '../types/auth.types';
+} from '../../types/auth';
 
 export const login = async (payload: LoginPayload) => {
   const { data } = await api.post<AuthSession>('/auth/login', payload);

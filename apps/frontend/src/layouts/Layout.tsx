@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router';
-import AuthButtons from '../components/shared/AuthButtons';
-import AuthProvider from '../features/auth/components/AuthProvider';
+import AuthButtons from '../features/auth/AuthButtons';
+import AuthProvider from '../features/auth/AuthProvider';
 
 export default function Layout() {
   return (

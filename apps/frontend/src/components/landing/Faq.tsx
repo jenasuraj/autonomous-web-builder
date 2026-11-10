@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { APP_NAME } from '../../../utils/helpers';
+import { APP_NAME } from '../../utils/helpers';
 import SectionHeading from './SectionHeading';
 
 const faqs = [

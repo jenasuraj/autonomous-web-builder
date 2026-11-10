@@ -1,5 +1,5 @@
 import { Rocket, ShieldCheck, Sparkles, Zap } from 'lucide-react';
-import { APP_NAME } from '../../../utils/helpers';
+import { APP_NAME } from '../../utils/helpers';
 
 const values = [
   {

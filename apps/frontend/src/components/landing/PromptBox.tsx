@@ -1,6 +1,6 @@
 import { ArrowUp, Paperclip } from 'lucide-react';
 import { useState, type FormEvent, type KeyboardEvent } from 'react';
-import Button from '../../../components/ui/Button';
+import Button from '../ui/Button';
 
 const suggestions = [
   'SaaS landing page',

@@ -1,6 +1,6 @@
 import { createContext } from 'react';
-import type { User } from '../../../types';
-import type { AuthSession, AuthStatus } from '../types/auth.types';
+import type { User } from '../../types';
+import type { AuthSession, AuthStatus } from '../../types/auth';
 
 export interface AuthContextValue {
   status: AuthStatus;

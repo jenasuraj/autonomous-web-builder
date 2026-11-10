@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
-import { useAuth } from '../../features/auth/hooks/useAuth';
-import PageLoader from '../ui/PageLoader';
+import { useAuth } from './useAuth';
+import PageLoader from '../../components/ui/PageLoader';
 
 /** Pages only for logged-out visitors; signed-in users go to where they were headed, or the dashboard. */
 export default function GuestRoute() {

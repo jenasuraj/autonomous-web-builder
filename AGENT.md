@@ -5,63 +5,79 @@ You must strictly follow these conventions when generating or modifying frontend
 ## 1. Routing and Layout
 
 1. All application routes must be registered in `App.tsx` using React Router's `createBrowserRouter`.
-2. Use a common `Layout` component for application-wide UI.
-3. The `Layout` component must contain the Navbar, Footer, and an `<Outlet />` for rendering child routes.
-4. Do not place page-specific UI directly inside `App.tsx` or `Layout.tsx`.
-5. Every route must point to its respective page component inside the appropriate feature folder.
+2. Use a common `Layout` component (`layouts/Layout.tsx`) for application-wide UI. It wraps every page with the auth session (`AuthProvider`), the top-right auth buttons and an `<Outlet />` for child routes. Add a Navbar or Footer here when they exist.
+3. Do not place page-specific UI directly inside `App.tsx` or `Layout.tsx`.
+4. Every route must point to a page component in its feature folder, e.g. `features/dashboard/DashboardPage.tsx`.
+5. Wrap logged-in-only routes in `ProtectedRoute` and logged-out-only routes (landing, login) in `GuestRoute`, both from `features/auth/`.
 
 ## 2. Folder Structure and Code Organization
 
-Follow this architecture:
+The project separates **logic** from **UI**:
+
+- `features/` holds pages and business logic, one **flat** folder per feature. Do not create `components/`, `pages/`, `services/` or `types/` subfolders inside a feature.
+- `components/` is the **only** components folder. It holds reusable UI blocks, grouped by feature, with no API calls, no app state and no business rules: everything a component needs arrives through props.
+- `types/` is the **only** types folder, with one file per feature.
 
 ```text
 src/
-├── features/
+├── features/                  ← pages + business logic (flat, one folder per feature)
+│   ├── auth/
+│   │   ├── AuthPage.tsx         route page (/login)
+│   │   ├── LoginForm.tsx        form state + calls the auth service
+│   │   ├── RegisterForm.tsx
+│   │   ├── OtpForm.tsx
+│   │   ├── AuthProvider.tsx     session state, re-validated on every route change
+│   │   ├── AuthContext.ts
+│   │   ├── useAuth.ts
+│   │   ├── ProtectedRoute.tsx   route guards
+│   │   ├── GuestRoute.tsx
+│   │   ├── AuthButtons.tsx      top-right login/register/logout (uses session state)
+│   │   └── auth.service.ts      API calls
 │   ├── dashboard/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── types/
-│   │
-│   └── users/
-│       ├── components/
-│       ├── pages/
-│       ├── services/
-│       └── types/
+│   │   └── DashboardPage.tsx
+│   └── landing/
+│       └── LandingPage.tsx
 │
-├── components/
-│   ├── ui/
-│   └── shared/
+├── components/                ← reusable UI blocks only (props in, markup out)
+│   ├── ui/                      generic primitives: Button, Input, FormMessage, PageLoader
+│   ├── auth/                    AuthCard, ModeSwitch, OtpInput
+│   ├── dashboard/               EmptyProjects
+│   └── landing/                 Hero, Features, Showcase, Testimonials, ...
+│
+├── types/                     ← all types, one file per feature
+│   ├── index.ts                 global types shared everywhere (User)
+│   └── auth.ts
 │
 ├── layouts/
 │   └── Layout.tsx
-│
 ├── lib/
-│   └── api.ts
-│
+│   └── api.ts                   axios instance
 ├── utils/
 │   └── helpers.ts
-│
-├── types/
-│   └── index.ts
-│
 ├── App.tsx
 └── main.tsx
 ```
 
 ### Responsibilities
 
-- **features:** Contains domain-specific functionality, pages, components, services and types.
-- **features/components:** Components used only within that particular feature.
-- **features/pages:** Route-level page components.
-- **features/services:** Feature-specific API calls and business operations.
-- **features/types:** Types specific to that feature.
-- **components/ui:** Reusable UI primitives such as buttons, inputs, dialogs and cards.
-- **components/shared:** Application-wide reusable components.
-- **layouts:** Common application layouts containing Navbar, Footer and Outlet.
-- **lib:** Third-party integrations and application infrastructure, such as Axios instances and API clients.
-- **utils:** Reusable helper functions, formatters and other utility logic.
-- **types:** Global application types shared across multiple features.
+- **`features/<feature>/`:** Route pages, hooks, context, services (API calls), forms and any component that holds state, calls an API or reads app state. Name files after what they are: `XxxPage.tsx`, `useXxx.ts`, `xxx.service.ts`.
+- **components/ui/:** Generic, app-agnostic primitives (buttons, inputs, loaders, messages).
+- **`components/<feature>/`:** Presentational blocks for one area of the app. They may import from `components/ui/`, `types/` and `utils/`, never from `features/` or `lib/`.
+- **types/:** All TypeScript types. Shared types go in `types/index.ts`; feature types go in `types/<feature>.ts`.
+- **layouts:** The app shell that wraps every route.
+- **lib:** Third-party integrations and infrastructure, such as the Axios instance.
+- **utils:** Reusable helper functions and formatters.
+
+### Where does it go?
+
+| If the code... | Put it in |
+|---|---|
+| Calls the API, holds form/app state, uses `useAuth`, decides what happens | `features/<feature>/` |
+| Only renders props (could be shown in a style guide) | `components/<feature>/` or `components/ui/` |
+| Is a type or interface | `types/<feature>.ts` |
+| Is a pure helper function | `utils/helpers.ts` |
+
+**Import direction:** `features → components, types, lib, utils`. `components → components/ui, types, utils`. Components never import features.
 
 ## 3. Example: Creating a Users Feature
 
@@ -71,67 +87,61 @@ Suppose the user requests:
 
 Follow this implementation flow:
 
-**Step 1: Register the route in App.tsx**
+**Step 1: Register the route in App.tsx** (inside `ProtectedRoute` if it needs login)
 
 ```tsx
-{
-  path: "/users",
-  element: <UsersPage />
-}
+{ path: '/users', element: <UsersPage /> }
 ```
 
-**Step 2: Create the feature structure**
+**Step 2: Create the files**
 
 ```text
-features/
-└── users/
-    ├── components/
-    │   ├── UserTable.tsx
-    │   └── UserSearch.tsx
-    ├── pages/
-    │   └── UsersPage.tsx
-    ├── services/
-    │   └── user.service.ts
-    └── types/
-        └── user.types.ts
+features/users/
+├── UsersPage.tsx        page: loads users, holds the search state
+└── users.service.ts     API calls
+
+components/users/
+├── UserTable.tsx        renders the users it receives as props
+└── UserSearch.tsx       renders the search box, reports changes via onChange
+
+types/
+└── users.ts
 ```
 
-**Step 3: Define user types**
+**Step 3: Define user types** in `types/users.ts`
 
-```tsx
-export interface User {
+```ts
+export interface UserRow {
   id: string;
   name: string;
   email: string;
 }
 ```
 
-**Step 4: Create API services**
+**Step 4: Create API services** in `features/users/users.service.ts`, using the shared client from `lib/api.ts`
 
-Use the shared API client from `lib/api.ts`.
-
-```tsx
+```ts
 export const getUsers = async () => {
-  const response = await api.get("/users");
-  return response.data;
+  const { data } = await api.get<UserRow[]>('/users');
+  return data;
 };
 ```
 
-**Step 5: Create reusable feature components**
+**Step 5: Create the UI blocks** in `components/users/`
 
-- `UserSearch.tsx`: Handles user search.
-- `UserTable.tsx`: Displays the user list.
+- `UserSearch.tsx`: props `value` and `onChange`; no state of its own beyond the input.
+- `UserTable.tsx`: props `users`; just renders them.
 
 **Step 6: Compose the page**
 
-`UsersPage.tsx` imports the search component, table component and user service to build the complete page.
+`features/users/UsersPage.tsx` calls `getUsers()`, keeps the search text in state, filters the list and passes it to `UserSearch` and `UserTable`.
 
 ## 4. General Rules
 
 1. Always inspect the existing project structure before creating files.
 2. Reuse existing components, utilities, API clients and types wherever possible.
 3. Never duplicate API configuration across features.
-4. Keep feature-specific logic inside its respective feature folder.
+4. Keep business logic in `features/<feature>/` and keep `components/` presentational (see the table in section 2).
 5. Avoid unnecessarily creating files or folders.
 6. Do not put all application logic inside a single component.
 7. Use TypeScript and define proper types. Avoid `any` unless absolutely necessary.

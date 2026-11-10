@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react';
-import { APP_NAME, getInitials } from '../../../utils/helpers';
+import { APP_NAME, getInitials } from '../../utils/helpers';
 import SectionHeading from './SectionHeading';
 
 const testimonials = [

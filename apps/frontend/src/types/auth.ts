@@ -1,4 +1,4 @@
-import type { User } from '../../../types';
+import type { User } from './index';
 
 export interface LoginPayload {
   email: string;
@@ -29,3 +29,5 @@ export type ValidateResponse =
   ({ authenticated: true } & AuthSession) | { authenticated: false };
 
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+
+export type AuthMode = 'login' | 'register';

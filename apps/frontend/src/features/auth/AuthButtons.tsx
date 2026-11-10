@@ -1,9 +1,9 @@
 import { LogOut } from 'lucide-react';
 import { Link } from 'react-router';
-import { useAuth } from '../../features/auth/hooks/useAuth';
+import { useAuth } from './useAuth';
 import { getInitials } from '../../utils/helpers';
-import Button from '../ui/Button';
-import { buttonStyles } from '../ui/buttonStyles';
+import Button from '../../components/ui/Button';
+import { buttonStyles } from '../../components/ui/buttonStyles';
 
 export default function AuthButtons() {
   const { status, user, signOut } = useAuth();
