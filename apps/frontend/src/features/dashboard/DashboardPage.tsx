@@ -12,10 +12,11 @@ import {
 } from '../../store/dashboard/dashboardThunks';
 import { APP_NAME } from '../../utils/helpers';
 
-
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
-  const { threads, threadId, messages, loading, error } = useAppSelector((s) => s.dashboard);
+  const { threads, threadId, messages, loading, error } = useAppSelector(
+    (s) => s.dashboard,
+  );
 
   // On load: the sidebar list, and a fresh chat to type into
   useEffect(() => {

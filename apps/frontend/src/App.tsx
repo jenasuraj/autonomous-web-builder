@@ -10,6 +10,7 @@ import ProtectedRoute from './features/auth/ProtectedRoute';
 import AuthPage from './features/auth/AuthPage';
 import DashboardPage from './features/dashboard/DashboardPage';
 import LandingPage from './features/landing/LandingPage';
+import ProfilePage from './features/profile/ProfilePage';
 import Layout from './layouts/Layout';
 
 const routes: RouteObject[] = [
@@ -27,6 +28,8 @@ const routes: RouteObject[] = [
         element: <ProtectedRoute />,
         children: [{ path: '/dashboard', element: <DashboardPage /> }],
       },
+      // Public profile, e.g. /suraj. Fixed paths above win over this one
+      { path: '/:name', element: <ProfilePage /> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },

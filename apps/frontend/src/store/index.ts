@@ -2,10 +2,15 @@ import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import authReducer from './auth/authSlice';
 import dashboardReducer from './dashboard/dashboardSlice';
+import profileReducer from './profile/profileSlice';
 
 export const makeStore = () =>
   configureStore({
-    reducer: { auth: authReducer, dashboard: dashboardReducer },
+    reducer: {
+      auth: authReducer,
+      dashboard: dashboardReducer,
+      profile: profileReducer,
+    },
   });
 
 export const store = makeStore();

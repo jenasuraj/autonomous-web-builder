@@ -22,6 +22,7 @@ describe('AuthService', () => {
           where: { email: string } | { id: number };
         }) => Promise<Partial<User> | null>
       >(),
+    findFirst: jest.fn<(args: unknown) => Promise<Partial<User> | null>>(),
     create:
       jest.fn<(args: { data: Prisma.UserCreateInput }) => Promise<User>>(),
   };
@@ -58,7 +59,7 @@ describe('AuthService', () => {
   });
 
   it('register does not touch the users table; it holds a pending signup with a 12-round hash', async () => {
-    users.findUnique.mockResolvedValue(null);
+    users.findFirst.mockResolvedValue(null);
     otp.createPending.mockResolvedValue(registrationId);
     const result = await service.register(dto);
     const pending = otp.createPending.mock.calls[0][0];
@@ -74,10 +75,16 @@ describe('AuthService', () => {
   });
 
   it('register rejects an email that already has an account', async () => {
-    users.findUnique.mockResolvedValue({ id: 1 });
-    await expect(service.register(dto)).rejects.toBeInstanceOf(
-      ConflictException,
+    users.findFirst.mockResolvedValue({ email: dto.email });
+    await expect(service.register(dto)).rejects.toThrow(
+      'Email is already registered',
     );
+    expect(otp.createPending).not.toHaveBeenCalled();
+  });
+
+  it('register rejects a name that is already taken', async () => {
+    users.findFirst.mockResolvedValue({ email: 'someone@else.com' });
+    await expect(service.register(dto)).rejects.toThrow('This name is taken');
     expect(otp.createPending).not.toHaveBeenCalled();
   });
 

@@ -14,12 +14,42 @@ datasource db {
 
 model User {
   id       Int      @id @default(autoincrement())
-  name     String
+  name     String   @unique // no spaces; also the public profile url: /<name>
   email    String   @unique
   password String
   threads  Thread[]
+  profile  Profile?
 
   @@map("users")
+}
+
+// 1:1 with users. Created on the first edit, so a user may not have one yet
+model Profile {
+  id               Int      @id @default(autoincrement())
+  userId           Int      @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName      String?
+  headline         String? // one line under the name, e.g. "Full-stack dev"
+  bio              String?
+  avatarKey        String? // S3 object key: avatars/<userId>/<uuid>.<ext>
+  location         String?
+  company          String?
+  jobTitle         String?
+  pronouns         String?
+  availableForWork Boolean  @default(false)
+  interests        String[]
+  skills           String[]
+  website          String?
+  twitter          String?
+  github           String?
+  linkedin         String?
+  medium           String?
+  youtube          String?
+  instagram        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("profiles")
 }
 
 model Thread {
@@ -27,7 +57,7 @@ model Thread {
   threadId  String   @unique // `${userId}-${randomUUID()}`, also the LangGraph thread_id
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String?  // null until the first message; also marks an unused "new chat"
+  title     String? // null until the first message; also marks an unused "new chat"
   history   Json     @default("[]") // [{ role: 'user' | 'assistant', content }]
   summary   String?
   createdAt DateTime @default(now())

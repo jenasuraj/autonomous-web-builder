@@ -24,7 +24,7 @@ const { Provider } = await import('react-redux');
 const { default: App } = await import('./App');
 const { makeStore } = await import('./store');
 
-const user = { id: 1, name: 'Ada Lovelace', email: 'ada@example.com' };
+const user = { id: 1, name: 'ada', email: 'ada@example.com' };
 const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
 const renderAt = (path: string) => {

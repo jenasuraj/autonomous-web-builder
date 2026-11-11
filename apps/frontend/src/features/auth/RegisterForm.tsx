@@ -28,9 +28,13 @@ export default function RegisterForm() {
       <Input
         label="Name"
         name="name"
-        autoComplete="name"
+        autoComplete="username"
+        placeholder="e.g. suraj (no spaces)"
         required
-        maxLength={100}
+        // Same rule as the backend: it becomes your profile url, /<name>
+        pattern="[A-Za-z0-9_\-]{2,30}"
+        title="2-30 letters, numbers, _ or - (no spaces)"
+        maxLength={30}
         value={form.name}
         onChange={handleChange}
       />

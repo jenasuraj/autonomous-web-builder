@@ -14,12 +14,22 @@ export default function AuthButtons() {
     <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
       {user ? (
         <>
-          <span className="flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900/80 py-1 pr-3 pl-1 text-sm backdrop-blur">
+          <Link
+            to="/dashboard"
+            className={buttonStyles('secondary', 'px-4! py-2! backdrop-blur')}
+          >
+            Dashboard
+          </Link>
+          <Link
+            to={`/${user.name}`}
+            aria-label="Profile"
+            className="flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900/80 py-1 pr-3 pl-1 text-sm backdrop-blur hover:bg-zinc-800"
+          >
             <span className="grid size-7 place-items-center rounded-full bg-linear-to-br from-indigo-500 to-fuchsia-500 text-xs font-semibold">
               {getInitials(user.name)}
             </span>
-            {user.name}
-          </span>
+            Profile
+          </Link>
           <Button
             variant="secondary"
             className="px-4! py-2! backdrop-blur"

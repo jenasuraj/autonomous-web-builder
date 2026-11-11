@@ -17,6 +17,7 @@ export const SALT_ROUNDS = 12;
 
 const OTP_SENT = 'Verification code sent to your email';
 const EMAIL_TAKEN = 'Email is already registered';
+const NAME_TAKEN = 'This name is taken, try another one';
 // Compared against when the email is unknown, so login takes the same time either way
 const DUMMY_HASH = bcrypt.hashSync('dummy-password', SALT_ROUNDS);
 
@@ -35,11 +36,14 @@ export class AuthService {
   ) {}
 
   async register({ name, email, password }: RegisterDto) {
-    const existing = await this.prisma.user.findUnique({
-      where: { email },
-      select: { id: true },
+    const existing = await this.prisma.user.findFirst({
+      where: { OR: [{ email }, { name }] },
+      select: { email: true },
     });
-    if (existing) throw new ConflictException(EMAIL_TAKEN);
+    if (existing)
+      throw new ConflictException(
+        existing.email === email ? EMAIL_TAKEN : NAME_TAKEN,
+      );
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
     const registrationId = await this.otp.createPending({
       name,
@@ -56,12 +60,14 @@ export class AuthService {
       const user = await this.prisma.user.create({ data: pending });
       return this.issueToken(user);
     } catch (error) {
-      // Two signups for the same email can both be pending; the first one verified wins
+      // Two signups with the same email or name can both be pending; the first one verified wins
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new ConflictException(EMAIL_TAKEN);
+        throw new ConflictException(
+          `${EMAIL_TAKEN}, or ${NAME_TAKEN.toLowerCase()}`,
+        );
       }
       throw error;
     }

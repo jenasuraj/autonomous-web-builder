@@ -8,7 +8,6 @@ import type {
 import { getErrorMessage } from '../../utils/helpers';
 import type { RootState } from '../index';
 
-
 const thunk = createAsyncThunk.withTypes<{
   state: RootState;
   rejectValue: string;

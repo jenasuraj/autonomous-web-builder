@@ -1,19 +1,9 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Req, UseGuards} from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard, type AuthUser } from '../auth/auth.guard.js';
 import { InvokeGraphDto } from './dto/invoke-graph.dto.js';
 import { GraphService } from './graph.service.js';
 import { ThreadService } from './thread.service.js';
-
 
 type AuthRequest = Request & { user: AuthUser };
 

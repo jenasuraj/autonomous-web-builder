@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { MailModule } from './mail/mail.module.js';
 import { GraphModule } from './graph/graph.module.js';
+import { ProfileModule } from './profile/profile.module.js';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GraphModule } from './graph/graph.module.js';
     RedisModule,
     MailModule,
     GraphModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
