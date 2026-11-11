@@ -20,6 +20,12 @@ const EMAIL_TAKEN = 'Email is already registered';
 // Compared against when the email is unknown, so login takes the same time either way
 const DUMMY_HASH = bcrypt.hashSync('dummy-password', SALT_ROUNDS);
 
+// JWT's `sub` is a string ("1") while users.id is a number; anything else (e.g. an old uuid token) gives null
+export const userIdFromSub = (sub: unknown) => {
+  const id = Number(sub);
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -83,8 +89,10 @@ export class AuthService {
     } catch {
       return { authenticated: false as const };
     }
+    const id = userIdFromSub(payload.sub);
+    if (!id) return { authenticated: false as const };
     const user = await this.prisma.user.findUnique({
-      where: { id: payload.sub },
+      where: { id },
       select: { id: true, name: true, email: true },
     });
     if (!user) return { authenticated: false as const };
@@ -96,7 +104,7 @@ export class AuthService {
   }
 
   private async issueToken({ id, name, email }: User) {
-    const token = await this.jwt.signAsync({ sub: id, email });
+    const token = await this.jwt.signAsync({ sub: String(id), email });
     const { exp } = this.jwt.decode<{ exp: number }>(token);
     return {
       user: { id, name, email },

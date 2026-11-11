@@ -45,7 +45,6 @@ src/
 ├── components/                ← reusable UI blocks only (props in, markup out)
 │   ├── ui/                      generic primitives: Button, Input, FormMessage, PageLoader
 │   ├── auth/                    AuthCard, ModeSwitch, OtpInput
-│   ├── dashboard/               EmptyProjects
 │   └── landing/                 Hero, Features, Showcase, Testimonials, ...
 │
 ├── types/                     ← all types, one file per feature

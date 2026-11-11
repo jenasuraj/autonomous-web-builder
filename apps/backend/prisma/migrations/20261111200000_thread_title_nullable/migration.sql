@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "threads" ALTER COLUMN "title" DROP NOT NULL,
+ALTER COLUMN "title" DROP DEFAULT;

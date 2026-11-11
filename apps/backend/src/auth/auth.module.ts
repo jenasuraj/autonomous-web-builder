@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule, type JwtSignOptions } from '@nestjs/jwt';
 import { AuthController } from './auth.controller.js';
+import { AuthGuard } from './auth.guard.js';
 import { AuthService } from './auth.service.js';
 import { OtpService } from './otp.service.js';
 
@@ -19,6 +20,7 @@ import { OtpService } from './otp.service.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, OtpService],
+  providers: [AuthService, OtpService, AuthGuard],
+  exports: [JwtModule, AuthGuard],
 })
 export class AuthModule {}

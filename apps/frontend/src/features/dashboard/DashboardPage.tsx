@@ -1,18 +1,58 @@
-import EmptyProjects from '../../components/dashboard/EmptyProjects';
+import { useEffect } from 'react';
+import ChatInput from '../../components/dashboard/ChatInput';
+import ChatMessages from '../../components/dashboard/ChatMessages';
+import Sidebar from '../../components/dashboard/Sidebar';
+import FormMessage from '../../components/ui/FormMessage';
+import { useAppDispatch, useAppSelector } from '../../store';
+import {
+  createThread,
+  fetchThreads,
+  openThread,
+  sendMessage,
+} from '../../store/dashboard/dashboardThunks';
 import { APP_NAME } from '../../utils/helpers';
-import { useAppSelector } from '../../store';
+
 
 export default function DashboardPage() {
-  const user = useAppSelector((s) => s.auth.user);
+  const dispatch = useAppDispatch();
+  const { threads, threadId, messages, loading, error } = useAppSelector((s) => s.dashboard);
+
+  // On load: the sidebar list, and a fresh chat to type into
+  useEffect(() => {
+    void dispatch(fetchThreads());
+    void dispatch(createThread());
+  }, [dispatch]);
+
   return (
-    <section className="mx-auto max-w-5xl px-4 pt-28 pb-16">
+    <section className="flex h-screen gap-3 p-3 pt-16">
       <title>{`Dashboard — ${APP_NAME}`}</title>
-      <p className="text-sm font-medium text-indigo-400">Dashboard</p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-        Welcome, {user?.name}
-      </h1>
-      <p className="mt-1 text-zinc-400">{user?.email}</p>
-      <EmptyProjects />
+
+      <Sidebar
+        threads={threads}
+        activeId={threadId}
+        onNewChat={() => void dispatch(createThread())}
+        onOpen={(id) => void dispatch(openThread(id))}
+      />
+
+      {/* chat, full height, input at the bottom */}
+      <div className="flex min-h-0 w-[400px] shrink-0 flex-col rounded-xl border border-white/10">
+        <ChatMessages messages={messages} loading={loading} />
+        {error && (
+          <div className="px-3">
+            <FormMessage message={error} />
+          </div>
+        )}
+        <ChatInput
+          onSend={(message) => void dispatch(sendMessage(message))}
+          disabled={loading || !threadId}
+        />
+      </div>
+
+      {/* right: 80% top, 20% bottom */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
+        <div className="flex-4 rounded-xl border border-white/10" />
+        <div className="flex-1 rounded-xl border border-white/10" />
+      </div>
     </section>
   );
 }

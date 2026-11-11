@@ -19,7 +19,7 @@ describe('AuthService', () => {
     findUnique:
       jest.fn<
         (args: {
-          where: { email: string } | { id: string };
+          where: { email: string } | { id: number };
         }) => Promise<Partial<User> | null>
       >(),
     create:
@@ -74,7 +74,7 @@ describe('AuthService', () => {
   });
 
   it('register rejects an email that already has an account', async () => {
-    users.findUnique.mockResolvedValue({ id: 'u1' });
+    users.findUnique.mockResolvedValue({ id: 1 });
     await expect(service.register(dto)).rejects.toBeInstanceOf(
       ConflictException,
     );
@@ -84,12 +84,12 @@ describe('AuthService', () => {
   it('verifyOtp with the right code creates the user and returns a JWT', async () => {
     const pending = { name: 'Ada', email: dto.email, password: 'bcrypt-hash' };
     otp.verify.mockResolvedValue(pending);
-    users.create.mockResolvedValue({ id: 'u1', ...pending });
+    users.create.mockResolvedValue({ id: 1, ...pending });
     const result = await service.verifyOtp({ registrationId, code: '123456' });
     expect(users.create).toHaveBeenCalledWith({ data: pending });
-    expect(result.user).toEqual({ id: 'u1', name: 'Ada', email: dto.email });
+    expect(result.user).toEqual({ id: 1, name: 'Ada', email: dto.email });
     expect(jwt.verify(result.token)).toMatchObject({
-      sub: 'u1',
+      sub: '1',
       email: dto.email,
     });
   });
@@ -121,7 +121,7 @@ describe('AuthService', () => {
 
   it('login returns a JWT for valid credentials', async () => {
     users.findUnique.mockResolvedValue({
-      id: 'u1',
+      id: 1,
       name: 'Ada',
       email: dto.email,
       password: await bcrypt.hash(dto.password, 4),
@@ -131,14 +131,14 @@ describe('AuthService', () => {
       password: dto.password,
     });
     expect(jwt.verify(result.token)).toMatchObject({
-      sub: 'u1',
+      sub: '1',
       email: dto.email,
     });
   });
 
   it('login rejects a wrong password or unknown email with 401', async () => {
     users.findUnique.mockResolvedValue({
-      id: 'u1',
+      id: 1,
       name: 'Ada',
       email: dto.email,
       password: await bcrypt.hash(dto.password, 4),
@@ -153,7 +153,7 @@ describe('AuthService', () => {
   });
 
   describe('validate', () => {
-    const user = { id: 'u1', name: 'Ada', email: dto.email };
+    const user = { id: 1, name: 'Ada', email: dto.email };
 
     it('is unauthenticated without a cookie', async () => {
       expect(await service.validate(undefined)).toEqual({
@@ -163,7 +163,7 @@ describe('AuthService', () => {
 
     it('returns the user and expiry for a valid token', async () => {
       users.findUnique.mockResolvedValue(user);
-      const token = await jwt.signAsync({ sub: 'u1', email: dto.email });
+      const token = await jwt.signAsync({ sub: '1', email: dto.email });
       const result = await service.validate(token);
       expect(result).toEqual({
         authenticated: true,
@@ -171,13 +171,13 @@ describe('AuthService', () => {
         expiresAt: expect.any(Date),
       });
       expect(users.findUnique).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { id: 'u1' } }),
+        expect.objectContaining({ where: { id: 1 } }),
       );
     });
 
     it('rejects an expired token', async () => {
       const token = await jwt.signAsync(
-        { sub: 'u1', email: dto.email },
+        { sub: '1', email: dto.email },
         { expiresIn: '-1s' },
       );
       expect(await service.validate(token)).toEqual({ authenticated: false });
@@ -185,16 +185,25 @@ describe('AuthService', () => {
 
     it('rejects a token signed with another secret', async () => {
       const forged = await new JwtService({ secret: 'attacker' }).signAsync({
-        sub: 'u1',
+        sub: '1',
         email: dto.email,
       });
       expect(await service.validate(forged)).toEqual({ authenticated: false });
       expect(users.findUnique).not.toHaveBeenCalled();
     });
 
+    it('rejects an old token whose sub is a uuid', async () => {
+      const token = await jwt.signAsync({
+        sub: 'a8dc3462-522d-4d3c-8a08-95e86ae6c5b0',
+        email: dto.email,
+      });
+      expect(await service.validate(token)).toEqual({ authenticated: false });
+      expect(users.findUnique).not.toHaveBeenCalled();
+    });
+
     it('rejects a valid token whose user was deleted', async () => {
       users.findUnique.mockResolvedValue(null);
-      const token = await jwt.signAsync({ sub: 'u1', email: dto.email });
+      const token = await jwt.signAsync({ sub: '1', email: dto.email });
       expect(await service.validate(token)).toEqual({ authenticated: false });
     });
   });

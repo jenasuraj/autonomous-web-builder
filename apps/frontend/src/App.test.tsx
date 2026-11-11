@@ -5,9 +5,16 @@ const login = jest.fn<(body: unknown) => Promise<unknown>>();
 
 jest.unstable_mockModule('./lib/api', () => ({
   api: {
-    get: async () => ({ data: await validateSession() }),
+    get: async (url: string) => ({
+      data: url === '/graph/threads' ? [] : await validateSession(),
+    }),
     post: async (url: string, body: unknown) => ({
-      data: url === '/auth/login' ? await login(body) : undefined,
+      data:
+        url === '/auth/login'
+          ? await login(body)
+          : url === '/graph/threads'
+            ? { threadId: '1-test' }
+            : undefined,
     }),
   },
 }));
@@ -17,7 +24,7 @@ const { Provider } = await import('react-redux');
 const { default: App } = await import('./App');
 const { makeStore } = await import('./store');
 
-const user = { id: 'u1', name: 'Ada Lovelace', email: 'ada@example.com' };
+const user = { id: 1, name: 'Ada Lovelace', email: 'ada@example.com' };
 const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
 const renderAt = (path: string) => {
@@ -113,7 +120,7 @@ describe('routing and auth', () => {
       });
       fireEvent.submit(screen.getByLabelText('Password').closest('form')!);
       expect(
-        await screen.findByRole('heading', { name: `Welcome, ${user.name}` }),
+        await screen.findByRole('button', { name: /log out/i }),
       ).toBeInTheDocument();
       expect(login).toHaveBeenCalledWith({
         email: user.email,
@@ -135,7 +142,7 @@ describe('routing and auth', () => {
     it('redirects / to /dashboard', async () => {
       renderAt('/');
       expect(
-        await screen.findByRole('heading', { name: `Welcome, ${user.name}` }),
+        await screen.findByRole('button', { name: /log out/i }),
       ).toBeInTheDocument();
       expect(window.location.pathname).toBe('/dashboard');
     });
@@ -143,7 +150,7 @@ describe('routing and auth', () => {
     it('redirects /login to /dashboard and shows the user with Log out', async () => {
       renderAt('/login');
       expect(
-        await screen.findByRole('heading', { name: `Welcome, ${user.name}` }),
+        await screen.findByRole('button', { name: /log out/i }),
       ).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: /log out/i }),

@@ -25,11 +25,11 @@ const copy = {
 };
 
 export default function AuthPage() {
-
   const dispatch = useAppDispatch();
   const pending = useAppSelector((s) => s.auth.pending);
   const [params, setParams] = useSearchParams();
-  const mode: AuthMode = params.get('mode') === 'register' ? 'register' : 'login';
+  const mode: AuthMode =
+    params.get('mode') === 'register' ? 'register' : 'login';
   const other: AuthMode = mode === 'login' ? 'register' : 'login';
   const verifying = mode === 'register' && pending;
 
@@ -65,11 +65,7 @@ export default function AuthPage() {
           <p className="mt-1 mb-6 text-sm text-zinc-400">
             {copy[mode].subtitle}
           </p>
-          {mode === 'login' ? (
-            <LoginForm />
-          ) : (
-            <RegisterForm />
-          )}
+          {mode === 'login' ? <LoginForm /> : <RegisterForm />}
         </>
       )}
     </AuthCard>
