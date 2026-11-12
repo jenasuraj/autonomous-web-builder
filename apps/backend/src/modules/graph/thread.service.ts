@@ -1,4 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  AIMessage,
+  HumanMessage,
+  SystemMessage,
+  type BaseMessage,
+} from '@langchain/core/messages';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../infra/prisma/prisma.service.js';
 
@@ -38,10 +44,37 @@ export class ThreadService {
   async get(userId: number, threadId: string) {
     const thread = await this.prisma.thread.findFirst({
       where: { userId, threadId },
-      select: { threadId: true, title: true, history: true },
+      select: {
+        threadId: true,
+        title: true,
+        history: true,
+        summary: true,
+        summarizedCount: true,
+      },
     });
     if (!thread) throw new NotFoundException('Thread not found');
     return thread;
+  }
+
+  // Rebuilds the agent's memory from the db: summary first, then the messages it doesn't cover
+  toMessages(thread: Awaited<ReturnType<ThreadService['get']>>) {
+    const history = thread.history as unknown as HistoryMessage[];
+    const messages: BaseMessage[] = [];
+    if (thread.summary) {
+      messages.push(
+        new SystemMessage(
+          `Summary of the conversation so far:\n${thread.summary}`,
+        ),
+      );
+    }
+    for (const m of history.slice(thread.summarizedCount)) {
+      messages.push(
+        m.role === 'user'
+          ? new HumanMessage(m.content)
+          : new AIMessage(m.content),
+      );
+    }
+    return messages;
   }
 
   async delete(userId: number, threadId: string) {

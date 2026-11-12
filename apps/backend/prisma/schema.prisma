@@ -53,15 +53,16 @@ model Profile {
 }
 
 model Thread {
-  id        Int      @id @default(autoincrement())
-  threadId  String   @unique // `${userId}-${randomUUID()}`, also the LangGraph thread_id
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String? // null until the first message; also marks an unused "new chat"
-  history   Json     @default("[]") // [{ role: 'user' | 'assistant', content }]
-  summary   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  threadId        String   @unique // `${userId}-${randomUUID()}`, also the LangGraph thread_id
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String? // null until the first message; also marks an unused "new chat"
+  history         Json     @default("[]") // [{ role: 'user' | 'assistant', content }]
+  summary         String?
+  summarizedCount Int      @default(0) // the first N history messages are covered by summary
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([userId, updatedAt]) // "my chats, newest first"
   @@map("threads")

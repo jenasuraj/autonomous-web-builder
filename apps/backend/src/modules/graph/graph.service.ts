@@ -21,14 +21,18 @@ export class GraphService {
   }
 
   async invoke(userId: number, message: string, threadId: string) {
-    await this.threads.get(userId, threadId);
+
+    const thread = await this.threads.get(userId, threadId);
+    const config ={configurable: { thread_id: threadId },recursionLimit: 50};
+    const { values } = await this.graph.getState(config); //checks the ram and check whether what this thead has  ...
+    const past = values.messages?.length ? [] : this.threads.toMessages(thread);
+
     try {
       const state = await this.graph.invoke(
-        { messages: [new HumanMessage(message)] },
-        { configurable: { thread_id: threadId }, recursionLimit: 50 },
+        { messages: [...past, new HumanMessage(message)] },
+        config,
       );
       const reply = state.messages.at(-1)?.text ?? '';
-
       await this.threads.append(userId, threadId, [
         { role: 'user', content: message },
         { role: 'assistant', content: reply },
