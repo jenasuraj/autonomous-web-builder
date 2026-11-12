@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
-import { Prisma, type User } from '../generated/prisma/client.js';
-import { PrismaService } from '../prisma/prisma.service.js';
+import { Prisma, type User } from '../../generated/prisma/client.js';
+import { PrismaService } from '../../infra/prisma/prisma.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { ResendOtpDto } from './dto/resend-otp.dto.js';

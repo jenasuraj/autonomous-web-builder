@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
 import { BadRequestException, HttpException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { MailService } from '../mail/mail.service.js';
-import { RedisService } from '../redis/redis.service.js';
+import { MailService } from '../../infra/mail/mail.service.js';
+import { RedisService } from '../../infra/redis/redis.service.js';
 import { OtpService } from './otp.service.js';
 
 // Minimal in-memory stand-in for the few Redis commands OtpService uses (TTLs are ignored)

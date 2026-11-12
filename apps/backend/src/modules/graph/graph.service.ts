@@ -1,18 +1,29 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { HumanMessage } from '@langchain/core/messages';
-import { graph } from './graph.js';
+import { END, MemorySaver, START, StateGraph } from '@langchain/langgraph';
+import { AgentState } from '../../lib/agent/state.js';
+import { agentNode } from '../../lib/agent/nodes.js';
 import { ThreadService } from './thread.service.js';
+import { ToolsService } from './tools.service.js';
 
 @Injectable()
 export class GraphService {
-  constructor(private readonly threads: ThreadService) {}
+  private readonly graph;
+  constructor(
+    private readonly threads: ThreadService,
+    tools: ToolsService,
+  ) {
+    this.graph = new StateGraph(AgentState)
+      .addNode('agent', agentNode(tools.tools))
+      .addEdge(START, 'agent')
+      .addEdge('agent', END)
+      .compile({ checkpointer: new MemorySaver() });
+  }
 
-  // graph.invoke(input, config): input is a partial state, config picks the thread
   async invoke(userId: number, message: string, threadId: string) {
-    await this.threads.get(userId, threadId); // 404 unless this user owns the thread
-
+    await this.threads.get(userId, threadId);
     try {
-      const state = await graph.invoke(
+      const state = await this.graph.invoke(
         { messages: [new HumanMessage(message)] },
         { configurable: { thread_id: threadId }, recursionLimit: 50 },
       );
@@ -24,7 +35,6 @@ export class GraphService {
       ]);
       return { threadId, reply };
     } catch (err) {
-      // Gemini answers 429/503 when it is rate limited or overloaded; tell the user to retry
       const status = (err as { status?: number }).status;
       if (status === 429 || status === 503) {
         throw new ServiceUnavailableException(

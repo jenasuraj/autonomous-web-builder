@@ -1,5 +1,5 @@
 import { LogOut } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import Button from '../../components/ui/Button';
 import { buttonStyles } from '../../components/ui/buttonStyles';
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -9,17 +9,20 @@ import { getInitials } from '../../utils/helpers';
 export default function AuthButtons() {
   const dispatch = useAppDispatch();
   const { status, user } = useAppSelector((s) => s.auth);
+  const { pathname } = useLocation();
   if (status === 'loading') return null;
   return (
     <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
       {user ? (
         <>
-          <Link
-            to="/dashboard"
-            className={buttonStyles('secondary', 'px-4! py-2! backdrop-blur')}
-          >
-            Dashboard
-          </Link>
+          {pathname !== '/dashboard' && (
+            <Link
+              to="/dashboard"
+              className={buttonStyles('secondary', 'px-4! py-2! backdrop-blur')}
+            >
+              Dashboard
+            </Link>
+          )}
           <Link
             to={`/${user.name}`}
             aria-label="Profile"

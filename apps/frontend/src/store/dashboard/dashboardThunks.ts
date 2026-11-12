@@ -54,6 +54,21 @@ export const openThread = thunk(
   },
 );
 
+// Deleting the open chat starts a fresh one
+export const deleteThread = thunk(
+  'dashboard/deleteThread',
+  async (threadId: string, { getState, dispatch, rejectWithValue }) => {
+    try {
+      await api.delete(`/graph/threads/${threadId}`);
+      if (getState().dashboard.threadId === threadId)
+        void dispatch(createThread());
+      return threadId;
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err));
+    }
+  },
+);
+
 // Sends the message to the agent on the current thread
 export const sendMessage = thunk(
   'dashboard/sendMessage',

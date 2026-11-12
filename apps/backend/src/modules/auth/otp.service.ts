@@ -10,8 +10,8 @@ import {
   randomUUID,
   timingSafeEqual,
 } from 'node:crypto';
-import { MailService } from '../mail/mail.service.js';
-import { RedisService } from '../redis/redis.service.js';
+import { MailService } from '../../infra/mail/mail.service.js';
+import { RedisService } from '../../infra/redis/redis.service.js';
 
 const PENDING_TTL_SECONDS = 10 * 60;
 const RESEND_COOLDOWN_SECONDS = 60;

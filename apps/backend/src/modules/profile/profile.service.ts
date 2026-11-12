@@ -1,9 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import type { Prisma } from '../generated/prisma/client.js';
-import { PrismaService } from '../prisma/prisma.service.js';
+import type { Prisma } from '../../generated/prisma/client.js';
+import { PrismaService } from '../../infra/prisma/prisma.service.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
-import { S3Service } from './s3.service.js';
+import { S3Service } from '../../infra/s3/s3.service.js';
 
 export const AVATAR_TYPES: Record<string, string> = {
   'image/jpeg': 'jpg',

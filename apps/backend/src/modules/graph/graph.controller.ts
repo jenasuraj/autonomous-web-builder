@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Req, UseGuards} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthGuard, type AuthUser } from '../auth/auth.guard.js';
 import { InvokeGraphDto } from './dto/invoke-graph.dto.js';
@@ -40,5 +50,11 @@ export class GraphController {
   @Get('threads/:threadId')
   getThread(@Req() req: AuthRequest, @Param('threadId') threadId: string) {
     return this.threads.get(req.user.id, threadId);
+  }
+
+  @Delete('threads/:threadId')
+  @HttpCode(204)
+  deleteThread(@Req() req: AuthRequest, @Param('threadId') threadId: string) {
+    return this.threads.delete(req.user.id, threadId);
   }
 }

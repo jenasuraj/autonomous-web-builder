@@ -7,8 +7,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import bcrypt from 'bcryptjs';
-import { Prisma, type User } from '../generated/prisma/client.js';
-import { PrismaService } from '../prisma/prisma.service.js';
+import { Prisma, type User } from '../../generated/prisma/client.js';
+import { PrismaService } from '../../infra/prisma/prisma.service.js';
 import { AuthService, SALT_ROUNDS } from './auth.service.js';
 import { OtpService } from './otp.service.js';
 

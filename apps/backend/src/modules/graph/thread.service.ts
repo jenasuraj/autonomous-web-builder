@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { PrismaService } from '../prisma/prisma.service.js';
+import { PrismaService } from '../../infra/prisma/prisma.service.js';
 
 export interface HistoryMessage {
   role: 'user' | 'assistant';
@@ -42,6 +42,13 @@ export class ThreadService {
     });
     if (!thread) throw new NotFoundException('Thread not found');
     return thread;
+  }
+
+  async delete(userId: number, threadId: string) {
+    const { count } = await this.prisma.thread.deleteMany({
+      where: { userId, threadId },
+    });
+    if (!count) throw new NotFoundException('Thread not found');
   }
 
   // Appends to the jsonb array in one query; the first message also becomes the title

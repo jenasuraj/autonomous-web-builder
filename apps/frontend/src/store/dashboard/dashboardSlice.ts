@@ -2,6 +2,7 @@ import { createSlice, isAnyOf } from '@reduxjs/toolkit';
 import type { ChatMessage, ThreadSummary } from '../../types/dashboard';
 import {
   createThread,
+  deleteThread,
   fetchThreads,
   openThread,
   sendMessage,
@@ -65,6 +66,9 @@ const dashboardSlice = createSlice({
           ...state.threads.filter((t) => t.threadId !== payload.threadId),
         ];
       })
+      .addCase(deleteThread.fulfilled, (state, { payload }) => {
+        state.threads = state.threads.filter((t) => t.threadId !== payload);
+      })
       .addCase(sendMessage.rejected, (state) => {
         state.loading = false;
       })
@@ -73,6 +77,7 @@ const dashboardSlice = createSlice({
           fetchThreads.rejected,
           createThread.rejected,
           openThread.rejected,
+          deleteThread.rejected,
           sendMessage.rejected,
         ),
         (state, { payload }) => {

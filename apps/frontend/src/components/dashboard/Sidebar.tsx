@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PanelLeftClose, PanelLeftOpen, SquarePen } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, SquarePen, Trash2 } from 'lucide-react';
 import type { ThreadSummary } from '../../types/dashboard';
 
 interface SidebarProps {
@@ -7,6 +7,7 @@ interface SidebarProps {
   activeId: string | null;
   onNewChat: () => void;
   onOpen: (threadId: string) => void;
+  onDelete: (threadId: string) => void;
 }
 
 export default function Sidebar({
@@ -14,6 +15,7 @@ export default function Sidebar({
   activeId,
   onNewChat,
   onOpen,
+  onDelete,
 }: SidebarProps) {
   const [open, setOpen] = useState(true);
   const Toggle = open ? PanelLeftClose : PanelLeftOpen;
@@ -45,17 +47,28 @@ export default function Sidebar({
       {open && (
         <nav className="flex-1 space-y-1 overflow-y-auto">
           {threads.map((t) => (
-            <button
+            <div
               key={t.threadId}
-              onClick={() => onOpen(t.threadId)}
-              className={`block w-full truncate rounded-lg px-2 py-1.5 text-left text-sm ${
+              className={`group flex items-center rounded-lg text-sm ${
                 t.threadId === activeId
                   ? 'bg-white/10 text-white'
                   : 'text-zinc-400 hover:bg-white/5'
               }`}
             >
-              {t.title}
-            </button>
+              <button
+                onClick={() => onOpen(t.threadId)}
+                className="flex-1 truncate px-2 py-1.5 text-left"
+              >
+                {t.title}
+              </button>
+              <button
+                onClick={() => onDelete(t.threadId)}
+                aria-label={`Delete ${t.title}`}
+                className="p-1.5 text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-rose-400"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           ))}
         </nav>
       )}

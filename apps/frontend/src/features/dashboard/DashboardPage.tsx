@@ -6,6 +6,7 @@ import FormMessage from '../../components/ui/FormMessage';
 import { useAppDispatch, useAppSelector } from '../../store';
 import {
   createThread,
+  deleteThread,
   fetchThreads,
   openThread,
   sendMessage,
@@ -33,6 +34,7 @@ export default function DashboardPage() {
         activeId={threadId}
         onNewChat={() => void dispatch(createThread())}
         onOpen={(id) => void dispatch(openThread(id))}
+        onDelete={(id) => void dispatch(deleteThread(id))}
       />
 
       {/* chat, full height, input at the bottom */}
